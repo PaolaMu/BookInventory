@@ -1,0 +1,58 @@
+<resources>
+
+    <string name="app_name">Book Store</string>
+
+    <!-- Label for overflow menu option that inserts fake book data into the app -->
+    <string name="action_insert_dummy_data">Insert Dummy Data</string>
+
+    <!-- Label for overflow menu option that deletes all book data in the app -->
+    <string name="action_delete_all_entries">Delete All Books</string>
+
+    <!-- Title for the activity to add a new book -->
+    <string name="editor_activity_title_new_book">Add a book</string>
+
+    <!-- Label for editor menu option to save book and leave editor -->
+    <string name="action_save">Save</string>
+
+    <!-- Label for editor overflow menu option that deletes the current book -->
+    <string name="action_delete">Delete</string>
+
+    <!-- Label for book store category of attributes in the editor -->
+    <string name="book_store_overview">Book Store</string>
+
+    <!-- Label for genre information in the editor -->
+    <string name="category_genre">Genre</string>
+
+    <!-- Label for supplier information in the editor -->
+    <string name="category_supplier">Supplier</string>
+
+    <!-- Text hint for name field in the editor -->
+    <string name="hint_book_name">Name</string>
+
+    <!-- Text hint for price field in the editor -->
+    <string name="hint_book_price">Price</string>
+
+    <!-- Text hint for quantity field in the editor -->
+    <string name="hint_book_quantity">Quantity</string>
+
+    <!-- Text hint for price field in the editor -->
+    <string name="hint_supplier_name">Supplier Name</string>
+
+    <!-- Text hint for quantity field in the editor -->
+    <string name="hint_supplier_phone">Supplier Phone</string>
+
+    <!-- Label for dropdown menu option if the book's genre is unknown  -->
+    <string name="genre_unknown">Unknown</string>
+
+    <!-- Label for dropdown menu option if the book is action -->
+    <string name="genre_action">Action</string>
+
+    <!-- Label for dropdown menu option if the book is comedy -->
+    <string name="genre_comedy">Comedy</string>
+
+    <!-- Label for dropdown menu option if the book is romance -->
+    <string name="genre_romance">Romance</string>
+
+    <!-- Label for dropdown menu option if the book is fiction -->
+    <string name="genre_fiction">Fiction</string>
+</resources>
