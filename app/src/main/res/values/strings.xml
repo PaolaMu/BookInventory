@@ -55,4 +55,25 @@
 
     <!-- Label for dropdown menu option if the book is fiction -->
     <string name="genre_fiction">Fiction</string>
+    <string name="the_table">The book table contain:</string>
+
+    <!-- Toast message in editor when new pet has been successfully inserted [CHAR LIMIT=NONE] -->
+    <string name="editor_insert_book_successful">Book saved</string>
+
+    <!-- Toast message in editor when new book has failed to be inserted [CHAR LIMIT=NONE] -->
+    <string name="editor_saved_book_failed">Error saving book</string>
+    <string name="editor_saved_book_successful">Book saved</string>
+    <!-- Toast message in editor when current pet was successfully updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_book_successful">Book updated</string>
+    <!-- Toast message in editor when current pet has failed to be updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_book_failed">Error updating book</string>
+
+
+    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50] -->
+    <string name="empty_view_title_text">It\'s a bit empty here...</string>
+    <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
+    <string name="empty_view_subtitle_text">Get started by adding a book</string>
+    <string name="editor_activity_title_edit_book">Edit Book</string>
+    <string name="editor_activity_title_add_book">Add a Book</string>
+
 </resources>

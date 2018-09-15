@@ -29,6 +29,7 @@ public class BookDbHelper extends SQLiteOpenHelper {
      * @param context of the app
      */
     public BookDbHelper(Context context) {
+
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -42,7 +43,7 @@ public class BookDbHelper extends SQLiteOpenHelper {
                 + BookEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + BookEntry.COLUMN_BOOK_NAME + " TEXT NOT NULL, "
                 + BookEntry.COLUMN_BOOK_GENRE + " INTEGER, "
-                + BookEntry.COLUMN_PRICE_BOOK + " INTEGER NOT NULL, "
+                + BookEntry.COLUMN_PRICE_BOOK + " INTEGER NOT NULL DEFAULT 0, "
                 + BookEntry.COLUMN_QUANTITY_BOOK + " INTEGER NOT NULL DEFAULT 0,"
                 + BookEntry.COLUMN_SUPPLIER_NAME + " TEXT,"
                 + BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER + " TEXT)";

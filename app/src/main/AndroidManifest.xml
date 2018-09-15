@@ -12,13 +12,11 @@
         <activity android:name=".BookActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".EditorActivity"
-            android:label="@string/editor_activity_title_new_book"
             android:theme="@style/EditorTheme"
             android:parentActivityName=".BookActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -26,6 +24,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookActivity" />
         </activity>
+        <provider
+            android:name=".data.BookProvider"
+            android:authorities="com.example.android.bookinventory"
+            android:exported="false" />
     </application>
 
 </manifest>

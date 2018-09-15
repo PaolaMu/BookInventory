@@ -1,9 +1,14 @@
 package com.example.android.bookinventory;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.Loader;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -15,12 +20,21 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.android.bookinventory.data.BookContract;
 import com.example.android.bookinventory.data.BookContract.BookEntry;
-import com.example.android.bookinventory.data.BookDbHelper;
 
 
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor> {
+
+    /**
+     * Identifier for the pet data loader
+     */
+    private static final int EXISTING_BOOK_LOADER = 0;
+
+    /**
+     * Content URI for the existing pet (null if it's a new pet)
+     */
+    private Uri mCurrentBookUri;
 
     private EditText mNameEditText;
 
@@ -54,12 +68,24 @@ public class EditorActivity extends AppCompatActivity {
      * {@link BookEntry#GENRE_UNKNOWN}, {@link BookEntry#GENRE_ACTION}, {@link BookEntry#GENRE_COMEDY},
      * {@link BookEntry#GENRE_ROMANCE} or {@link BookEntry#GENRE_FICTION}.
      */
-    private int mGenre = BookContract.BookEntry.GENRE_UNKNOWN;
+    private int mGenre = BookEntry.GENRE_UNKNOWN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        Intent intent = getIntent();
+        mCurrentBookUri = intent.getData();
+
+        if (mCurrentBookUri == null) {
+            setTitle(getString(R.string.editor_activity_title_add_book));
+        } else {
+            setTitle(getString(R.string.editor_activity_title_edit_book));
+        }
+        // Initialize a loader to read the pet data from the database
+        // and display the current values in the editor
+        getSupportLoaderManager().initLoader(EXISTING_BOOK_LOADER, null, this);
 
 
         // Find all relevant views that we will need to read user input from
@@ -69,6 +95,7 @@ public class EditorActivity extends AppCompatActivity {
         mQuantityEditText = (EditText) findViewById(R.id.edit_book_quantity);
         mSupplierEditText = (EditText) findViewById(R.id.edit_supplier_name);
         mPhoneEditText = (EditText) findViewById(R.id.edit_supplier_phone);
+
 
         setupSpinner();
     }
@@ -118,44 +145,80 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     /**
-     * Get user input from editor and save new book into database.
+     * Get user input from editor and save book into database.
      */
-    private void insertPet() {
+    private void saveBook() {
 
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-        int price = Integer.parseInt(priceString);
         String supplierString = mSupplierEditText.getText().toString().trim();
         String phoneString = mPhoneEditText.getText().toString().trim();
         String quantityString = mQuantityEditText.getText().toString().trim();
-        int quantity = Integer.parseInt(quantityString);
 
-        // Create database helper
-        BookDbHelper mDbHelper = new BookDbHelper(this);
-        // Gets the database in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // Create a ContentValues object where column names are the keys,
         // and Pride and Prejudice's book attributes are the values.
         ContentValues values = new ContentValues();
         values.put(BookEntry.COLUMN_BOOK_NAME, nameString);
         values.put(BookEntry.COLUMN_PRICE_BOOK, priceString);
-        values.put(BookEntry.COLUMN_BOOK_GENRE, mGenre);
-        values.put(BookEntry.COLUMN_QUANTITY_BOOK, quantityString);
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, supplierString);
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER, phoneString);
+        values.put(BookEntry.COLUMN_BOOK_GENRE, mGenre);
 
-        // Insert a new row for book in the database, returning the ID of that new row.
-        long newRowId = db.insert(BookEntry.TABLE_NAME, null, values);
+        // Check if this is supposed to be a new book
+        // and check if all the fields in the editor are blank
+        if (mCurrentBookUri == null &&
+                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
+                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierString) &&
+                TextUtils.isEmpty(phoneString) && mGenre == BookEntry.GENRE_UNKNOWN) {
+            // Since no fields were modified, we can return early without creating a new pet.
+            // No need to create ContentValues and no need to do any ContentProvider operations.
+            return;
+        }
 
-        // Show a toast message depending on whether or not the insertion was successful
-        if (newRowId == -1) {
-            // If the row ID is -1, then there was an error with insertion.
-            Toast.makeText(this, "Error saving book", Toast.LENGTH_SHORT).show();
+        // If the quantity is not provided by the user, don't try to parse the string into an
+        // integer value. Use 0 by default.
+        int quantity = 0;
+        if (!TextUtils.isEmpty(quantityString)) {
+            quantity = Integer.parseInt(quantityString);
+        }
+        values.put(BookEntry.COLUMN_QUANTITY_BOOK, quantity);
+
+
+    // Determine if this is a new or existing book by checking if mCurrentBookUri is null or not
+        if (mCurrentBookUri == null) {
+        // This is a NEW book, so insert a new book into the provider,
+        // returning the content URI for the new book.
+        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
+
+        // Show a toast message depending on whether or not the insertion was successful.
+        if (newUri == null) {
+            // If the new content URI is null, then there was an error with insertion.
+            Toast.makeText(this, getString(R.string.editor_saved_book_failed),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            // Otherwise, the insertion was successful and we can display a toast with the row ID.
-            Toast.makeText(this, "Book saved with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+            // Otherwise, the insertion was successful and we can display a toast.
+            Toast.makeText(this, getString(R.string.editor_saved_book_successful),
+                    Toast.LENGTH_SHORT).show();
+        }
+    } else {
+        // Otherwise this is an EXISTING book, so update the book with content URI: mCurrentBookUri
+        // and pass in the new ContentValues. Pass in null for the selection and selection args
+        // because mCurrentBookUri will already identify the correct row in the database that
+        // we want to modify.
+        int rowsAffected = getContentResolver().update(mCurrentBookUri, values, null, null);
+
+        // Show a toast message depending on whether or not the update was successful.
+        if (rowsAffected == 0) {
+            // If no rows were affected, then there was an error with the update.
+            Toast.makeText(this, getString(R.string.editor_update_book_failed),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            // Otherwise, the update was successful and we can display a toast.
+            Toast.makeText(this, getString(R.string.editor_update_book_successful),
+                    Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -173,9 +236,9 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Save pet to database
-                insertPet();
-                // Exit activity
+                // Save book to database
+                saveBook();
+                //Exit activity
                 finish();
                 return true;
             // Respond to a click on the "Delete" menu option
@@ -190,4 +253,92 @@ public class EditorActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-}
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        // Since the editor shows all pet attributes, define a projection that contains
+        // all columns from the pet table
+        String[] projection = {
+                BookEntry._ID,
+                BookEntry.COLUMN_BOOK_NAME,
+                BookEntry.COLUMN_PRICE_BOOK,
+                BookEntry.COLUMN_BOOK_GENRE,
+                BookEntry.COLUMN_QUANTITY_BOOK,
+                BookEntry.COLUMN_SUPPLIER_NAME,
+                BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER};
+
+        // This loader will execute the ContentProvider's query method on a background thread
+        return new CursorLoader(this,   // Parent activity context
+                mCurrentBookUri,         // Query the content URI for the current pet  projection,
+                projection,               // Columns to include in the resulting Cursor
+                null,                   // No selection clause
+                null,                   // No selection arguments
+                null);                  // Default sort order
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Bail early if the cursor is null or there is less than 1 row in the cursor
+        if (cursor == null || cursor.getCount() < 1) {
+            return;
+        }
+        // Proceed with moving to the first row of the cursor and reading data from it
+        // (This should be the only row in the cursor)
+        if (cursor.moveToFirst()) {
+
+            // Find the columns of books attributes that we're interested in
+            int nameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_NAME);
+            int priceColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRICE_BOOK);
+            int genreColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_GENRE);
+            int quantityColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_QUANTITY_BOOK);
+            int supplierColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER);
+            int phoneColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER);
+
+            // Extract out the value from the Cursor for the given column index
+            String name = cursor.getString(nameColumnIndex);
+            int genre = cursor.getInt(genreColumnIndex);
+            int quantity = cursor.getInt(quantityColumnIndex);
+            String supplier = cursor.getString(supplierColumnIndex);
+            String phone = cursor.getString(phoneColumnIndex);
+            String price = cursor.getString(priceColumnIndex);
+
+            // Update the views on the screen with the values from the database
+            mNameEditText.setText(name);
+            mSupplierEditText.setText(supplier);
+            mPhoneEditText.setText(phone);
+            mQuantityEditText.setText(String.valueOf(quantity));
+            mPriceEditText.setText(String.valueOf(price));
+
+            switch (genre) {
+                case BookEntry.GENRE_ACTION:
+                    mGenreSpinner.setSelection(1);
+                    break;
+                case BookEntry.GENRE_COMEDY:
+                    mGenreSpinner.setSelection(2);
+                    break;
+                case BookEntry.GENRE_ROMANCE:
+                    mGenreSpinner.setSelection(3);
+                    break;
+                case BookEntry.GENRE_FICTION:
+                    mGenreSpinner.setSelection(4);
+                    break;
+                default:
+                    mGenreSpinner.setSelection(0);
+                    break;
+            }
+        }
+    }
+    @Override
+    public void onLoaderReset(Loader <Cursor> loader) {
+        // If the loader is invalidated, clear out all the data from the input fields.
+        mNameEditText.setText("");
+        mPriceEditText.setText("");
+        mQuantityEditText.setText("");
+        mGenreSpinner.setSelection(0); // Select "Unknown" genre
+        mSupplierEditText.setText("");
+        mPhoneEditText.setText("");
+        }
+    }
+
+
+
