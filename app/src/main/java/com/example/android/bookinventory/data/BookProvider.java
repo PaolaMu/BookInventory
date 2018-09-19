@@ -209,109 +209,89 @@ import java.security.Provider;
      * Return the number of rows that were successfully updated.
      */
     private int updateBook(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        // If the {@link BookEntry#COLUMN_BOOK_NAME} key is present,
-        // check that the name value is not null.
         if (values.containsKey(BookEntry.COLUMN_BOOK_NAME)) {
             String name = values.getAsString(BookEntry.COLUMN_BOOK_NAME);
             if (name == null) {
                 throw new IllegalArgumentException("Book requires a name");
             }
+        }
 
-            // If the {@link BookEntry#COLUMN_PRICE_BOOK} key is present,
-            // check that the gender value is valid.
-            if (values.containsKey(BookEntry.COLUMN_PRICE_BOOK)) {
-                Integer price = values.getAsInteger(BookEntry.COLUMN_PRICE_BOOK);
-                if (price != null && price < 0) {
-                    throw new IllegalArgumentException("Book requires valid price");
-                }
-            }
+        // If there are no values to update, then don't try to update the database
+        if (values.size() == 0) {
+            return 0;
+        }
 
-            // If the {@link BookEntry#COLUMN_QUANTITY_BOOK} key is present,
-            // check that the quantity value is valid.
-            if (values.containsKey(BookEntry.COLUMN_QUANTITY_BOOK)) {
-                // Check that the quantity is greater than or equal to 0
-                Integer quantity = values.getAsInteger(BookEntry.COLUMN_QUANTITY_BOOK);
-                if (quantity != null && quantity < 0) {
-                    throw new IllegalArgumentException("Books requires valid quantity");
-                }
-            }
-            // If there are no values to update, then don't try to update the database
-            if (values.size() == 0) {
-                return 0;
-            }
+        // Otherwise, get writeable database to update the data
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
-            // Otherwise, get writable database to update the data
-            SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        // Perform the update on the database and get the number of rows affected
+        int rowsUpdated = database.update(BookEntry.TABLE_NAME, values, selection, selectionArgs);
 
-            // Perform the update on the database and get the number of rows affected
-            int rowsUpdated = database.update(BookEntry.TABLE_NAME, values, selection, selectionArgs);
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
 
-            // If 1 or more rows were updated, then notify all listeners that the data at the
-            // given URI has changed
-            if (rowsUpdated != 0) {
+        // Return the number of rows updated
+        return rowsUpdated;
+    }
+
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        // Get writable database
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        // Track the number of rows that were deleted
+        int rowsDeleted;
+
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case BOOKS:
+                rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case BOOK_ID:
+                // Delete a single row given by the ID in the URI
+                selection = BookEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
+        // If 1 or more rows were deleted, then notify all listeners that the data at the
+        // given URI has changed
+        if (rowsDeleted != 0) {
+            try {
                 getContext().getContentResolver().notifyChange(uri, null);
+                Log.i(LOG_TAG, "notifyChange() Success! Data for the book content URI has changed.");
+            } catch (NullPointerException npe) {
+                Log.e(LOG_TAG, "notifyChange() Failed! " + npe);
             }
-
-            // Return the number of rows updated
-            return rowsUpdated;
         }
-        return 0;
+        // Log the rowsDeleted
+        Log.i(LOG_TAG, "rowsDeleted: " + rowsDeleted);
+
+        // Return the number of rows deleted
+        return rowsDeleted;
     }
 
-        @Override
-        public int delete (Uri uri, String selection, String[]selectionArgs){
-            // Get writable database
-            SQLiteDatabase database = mDbHelper.getWritableDatabase();
-
-            // Track the number of rows that were deleted
-            int rowsDeleted;
-
-            final int match = sUriMatcher.match(uri);
-            switch (match) {
-                case BOOKS:
-                    rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
-                    break;
-                case BOOK_ID:
-                    // Delete a single row given by the ID in the URI
-                    selection = BookEntry._ID + "=?";
-                    selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                    rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Deletion is not supported for " + uri);
-            }
-            // If 1 or more rows were deleted, then notify all listeners that the data at the
-            // given URI has changed
-            if (rowsDeleted != 0) {
-                try {
-                    getContext().getContentResolver().notifyChange(uri, null);
-                    Log.i(LOG_TAG, "notifyChange() Success! Data for the book content URI has changed.");
-                } catch (NullPointerException npe) {
-                    Log.e(LOG_TAG, "notifyChange() Failed! " + npe);
-                }
-            }
-            // Log the rowsDeleted
-            Log.i(LOG_TAG, "rowsDeleted: " + rowsDeleted);
-
-            // Return the number of rows deleted
-            return rowsDeleted;
-        }
-
-        /**
-         * Returns the MIME type of data for the content URI.
-         */
-        @Override
-        public String getType (Uri uri){
-            final int match = sUriMatcher.match(uri);
-            switch (match) {
-                case BOOKS:
-                    return BookEntry.CONTENT_LIST_TYPE;
-                case BOOK_ID:
-                    return BookEntry.CONTENT_ITEM_TYPE;
-                default:
-                    throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
-            }
+    /**
+     * Returns the MIME type of data for the content URI.
+     */
+    @Override
+    public String getType(Uri uri) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case BOOKS:
+                return BookEntry.CONTENT_LIST_TYPE;
+            case BOOK_ID:
+                return BookEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }
     }
+}
 
 

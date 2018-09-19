@@ -91,7 +91,7 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     /**
-     * Helper method to delete all pets in the database.
+     * Helper method to delete all books in the database.
      */
     private void deleteAllBooks() {
         int rowsDeleted = getContentResolver().delete(BookEntry.CONTENT_URI, null, null);
