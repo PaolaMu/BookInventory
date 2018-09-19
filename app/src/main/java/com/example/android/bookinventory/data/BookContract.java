@@ -1,5 +1,5 @@
 package com.example.android.bookinventory.data;
-
+// Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -20,7 +20,7 @@ public final class BookContract {
      * content authority is the package name for the app, which is guaranteed to be unique on the
      * device.
      */
-    public static final String CONTENT_AUTHORITY = "com.example.android.bookInventory";
+    public static final String CONTENT_AUTHORITY = "com.example.android.bookinventory";
     /**
      * Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
      * the content provider.
@@ -28,8 +28,8 @@ public final class BookContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     /**
      * Possible path (appended to base content URI for possible URI's)
-     * For instance, content://com.example.android.pets/pets/ is a valid path for
-     * looking at pet data. content://com.example.android.pets/staff/ will fail,
+     * For instance, content://com.example.android.books/books/ is a valid path for
+     * looking at book data. content://com.example.android.books/staff/ will fail,
      * as the ContentProvider hasn't been given any information on what to do with "staff".
      */
     public static final String PATH_BOOKS = "books";
@@ -72,13 +72,6 @@ public final class BookContract {
          */
         public final static String COLUMN_BOOK_NAME = "name";
 
-        /**
-         * Genre of the book.
-         * The only possible values are {@link #GENRE_UNKNOWN}, {@link #GENRE_ACTION}, {@link #GENRE_COMEDY},
-         * {@link #GENRE_ROMANCE}, {@link #GENRE_FICTION}.
-         * Type: INTEGER
-         */
-        public final static String COLUMN_BOOK_GENRE = "genre";
 
         /**
          * Price of the book.
@@ -102,23 +95,9 @@ public final class BookContract {
          * Type: TEXT
          */
         public final static String COLUMN_SUPPLIER_PHONE_NUMBER = "phone";
-        /**
-         * Possible values for the genre of the book.
-         */
-        public static final int GENRE_ACTION = 1;
-        public static final int GENRE_COMEDY = 2;
-        public static final int GENRE_ROMANCE = 3;
-        public static final int GENRE_FICTION = 4;
-        public static final int GENRE_UNKNOWN = 0;
 
-        public static boolean isValidGenre(Integer genre) {
-            if (genre == GENRE_UNKNOWN || genre == GENRE_FICTION || genre == GENRE_COMEDY ||
-                    genre == GENRE_ROMANCE || genre == GENRE_ACTION) {
-                return true;
-            }
-            return false;
-        }
     }
-}
+        }
+
 
 

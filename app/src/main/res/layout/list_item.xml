@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="@color/white"
     android:padding="@dimen/activity_margin">
 
     <TextView
@@ -12,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
+        android:textSize="18sp"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="#2B3D4D"  />
 
@@ -21,5 +23,26 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:textAppearance="?android:textAppearanceSmall"
-        android:textColor="#AEB6BD"  />
+        android:textColor="@color/black"  />
+
+    <TextView
+        android:id="@+id/summary2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@color/black"  />
+
+    <Button
+        android:id="@+id/sale"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#B0BEC5"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text="@string/sale"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="#FFFFFF"
+        android:fontFamily="sans-serif" />
+
 </LinearLayout>

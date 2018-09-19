@@ -1,8 +1,10 @@
 package com.example.android.bookinventory.data;
 
 import android.content.Context;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 
@@ -42,14 +44,14 @@ public class BookDbHelper extends SQLiteOpenHelper {
         String SQL_CREATE_BOOKS_TABLE = "CREATE TABLE " + BookEntry.TABLE_NAME + " ("
                 + BookEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + BookEntry.COLUMN_BOOK_NAME + " TEXT NOT NULL, "
-                + BookEntry.COLUMN_BOOK_GENRE + " INTEGER, "
                 + BookEntry.COLUMN_PRICE_BOOK + " INTEGER NOT NULL DEFAULT 0, "
                 + BookEntry.COLUMN_QUANTITY_BOOK + " INTEGER NOT NULL DEFAULT 0,"
-                + BookEntry.COLUMN_SUPPLIER_NAME + " TEXT,"
-                + BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER + " TEXT)";
+                + BookEntry.COLUMN_SUPPLIER_NAME + " TEXT NOT NULL,"
+                + BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER + " TEXT NOT NULL)";
 
         // Execute the SQL statement
         db.execSQL(SQL_CREATE_BOOKS_TABLE);
+        Log.i(LOG_TAG, "db.execSQL(SQL_CREATE_BOOKS_TABLE): " + SQL_CREATE_BOOKS_TABLE);
     }
 
     /**
@@ -59,5 +61,10 @@ public class BookDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // The database is still at version 1, so there's nothing to do be done here.
     }
-}
+
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
+    }
+
+    }
 

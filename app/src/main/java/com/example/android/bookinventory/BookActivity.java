@@ -1,5 +1,5 @@
 package com.example.android.bookinventory;
-
+// Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -12,12 +12,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.example.android.bookinventory.data.BookContract;
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 
 
@@ -25,7 +28,6 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int BOOK_LOADER = 0;
     BookCursorAdapter mCursorAdapter;
-
 
 
     @Override
@@ -48,7 +50,7 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
         View emptyView = findViewById(R.id.empty_view);
         bookListView.setEmptyView(emptyView);
 
-        mCursorAdapter = new BookCursorAdapter(this,null);
+        mCursorAdapter = new BookCursorAdapter(this, null);
         bookListView.setAdapter(mCursorAdapter);
 
         //Setup item click listener
@@ -80,12 +82,19 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
         ContentValues values = new ContentValues();
         values.put(BookEntry.COLUMN_BOOK_NAME, "Pride and Prejudice");
         values.put(BookEntry.COLUMN_PRICE_BOOK, "$5");
-        values.put(BookEntry.COLUMN_BOOK_GENRE, BookEntry.GENRE_ROMANCE);
         values.put(BookEntry.COLUMN_QUANTITY_BOOK, 7);
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, "Baker % Taylor");
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER, "8003422067");
 
-        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
+        getContentResolver().insert(BookEntry.CONTENT_URI, values);
+
+    }
+
+    /**
+     * Helper method to delete all pets in the database.
+     */
+    private void deleteAllBooks() {
+        int rowsDeleted = getContentResolver().delete(BookEntry.CONTENT_URI, null, null);
 
     }
 
@@ -107,7 +116,7 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                deleteAllBooks();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -116,10 +125,13 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String [] projection = {
+        String[] projection = {
                 BookEntry._ID,
                 BookEntry.COLUMN_BOOK_NAME,
-                BookEntry.COLUMN_PRICE_BOOK};
+                BookEntry.COLUMN_PRICE_BOOK,
+                BookEntry.COLUMN_QUANTITY_BOOK,
+                BookEntry.COLUMN_SUPPLIER_NAME,
+                BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER};
 
         return new CursorLoader(this,
                 BookEntry.CONTENT_URI,
@@ -137,7 +149,28 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mCursorAdapter.swapCursor(null);
+    }
 
+    //decrease quantity button
+    public void decreaseCount(int columnId, int quantity) {
+
+        if (quantity < 1) {
+            Toast.makeText(this, getString(R.string.quantity_change_books_failed),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            quantity = quantity - 1;
+            Toast.makeText(this, getString(R.string.quantity_change_books_success),
+                    Toast.LENGTH_SHORT).show();
+
+            ContentValues values = new ContentValues();
+            values.put(BookEntry.COLUMN_QUANTITY_BOOK, quantity);
+
+            Uri updateUri = ContentUris.withAppendedId(BookContract.BookEntry.CONTENT_URI, columnId);
+
+            getContentResolver().update(updateUri, values, null, null);
+
+
+        }
     }
 }
 

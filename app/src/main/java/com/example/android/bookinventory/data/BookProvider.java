@@ -1,5 +1,5 @@
 package com.example.android.bookinventory.data;
-
+// Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.android.bookinventory.data.BookContract.BookEntry;
@@ -25,12 +26,12 @@ import java.security.Provider;
     public static final String LOG_TAG = BookProvider.class.getSimpleName();
 
     /**
-     * URI matcher code for the content URI for the pets table
+     * URI matcher code for the content URI for the books table
      */
     private static final int BOOKS = 100;
 
     /**
-     * URI matcher code for the content URI for a single pet in the pets table
+     * URI matcher code for the content URI for a single pet in the books table
      */
     private static final int BOOK_ID = 101;
 
@@ -47,18 +48,18 @@ import java.security.Provider;
         // should recognize. All paths added to the UriMatcher have a corresponding code to return
         // when a match is found.
 
-        // The content URI of the form "content://com.example.android.pets/pets" will map to the
-        // integer code {@link #PETS}. This URI is used to provide access to MULTIPLE rows
+        // The content URI of the form "content://com.example.android.books/books" will map to the
+        // integer code {@link #BOOKS}. This URI is used to provide access to MULTIPLE rows
         // of the pets table.
         sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS, BOOKS);
 
-        // The content URI of the form "content://com.example.android.pets/pets/#" will map to the
-        // integer code {@link #PET_ID}. This URI is used to provide access to ONE single row
-        // of the pets table.
+        // The content URI of the form "content://com.example.android.books/books/#" will map to the
+        // integer code {@link #BOOK_ID}. This URI is used to provide access to ONE single row
+        // of the books table.
         //
         // In this case, the "#" wildcard is used where "#" can be substituted for an integer.
-        // For example, "content://com.example.android.pets/pets/3" matches, but
-        // "content://com.example.android.pets/pets" (without a number at the end) doesn't match.
+        // For example, "content://com.example.android.books/books/3" matches, but
+        // "content://com.example.android.books/books" (without a number at the end) doesn't match.
         sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS + "/#", BOOK_ID);
     }
 
@@ -134,7 +135,7 @@ import java.security.Provider;
     }
 
     /**
-     * Insert a pet into the database with the given content values. Return the new content URI
+     * Insert a book into the database with the given content values. Return the new content URI
      * for that specific row in the database.
      */
     private Uri insertBook(Uri uri, ContentValues values) {
@@ -142,6 +143,17 @@ import java.security.Provider;
         String name = values.getAsString(BookEntry.COLUMN_BOOK_NAME);
         if (name == null) {
             throw new IllegalArgumentException("Book requires a name");
+        }
+
+        // Check that the supplier is not null
+        String supplier = values.getAsString(BookEntry.COLUMN_SUPPLIER_NAME);
+        if (supplier == null) {
+            throw new IllegalArgumentException("Book requires a supplier");
+        }
+        // Check that the phone number is not null
+        String phone = values.getAsString(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER);
+        if (phone == null) {
+            throw new IllegalArgumentException("Book requires a phone number");
         }
 
         // Check that the price is valid
@@ -204,95 +216,102 @@ import java.security.Provider;
             if (name == null) {
                 throw new IllegalArgumentException("Book requires a name");
             }
+
+            // If the {@link BookEntry#COLUMN_PRICE_BOOK} key is present,
+            // check that the gender value is valid.
+            if (values.containsKey(BookEntry.COLUMN_PRICE_BOOK)) {
+                Integer price = values.getAsInteger(BookEntry.COLUMN_PRICE_BOOK);
+                if (price != null && price < 0) {
+                    throw new IllegalArgumentException("Book requires valid price");
+                }
+            }
+
+            // If the {@link BookEntry#COLUMN_QUANTITY_BOOK} key is present,
+            // check that the quantity value is valid.
+            if (values.containsKey(BookEntry.COLUMN_QUANTITY_BOOK)) {
+                // Check that the quantity is greater than or equal to 0
+                Integer quantity = values.getAsInteger(BookEntry.COLUMN_QUANTITY_BOOK);
+                if (quantity != null && quantity < 0) {
+                    throw new IllegalArgumentException("Books requires valid quantity");
+                }
+            }
+            // If there are no values to update, then don't try to update the database
+            if (values.size() == 0) {
+                return 0;
+            }
+
+            // Otherwise, get writable database to update the data
+            SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+            // Perform the update on the database and get the number of rows affected
+            int rowsUpdated = database.update(BookEntry.TABLE_NAME, values, selection, selectionArgs);
+
+            // If 1 or more rows were updated, then notify all listeners that the data at the
+            // given URI has changed
+            if (rowsUpdated != 0) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+
+            // Return the number of rows updated
+            return rowsUpdated;
+        }
+        return 0;
+    }
+
+        @Override
+        public int delete (Uri uri, String selection, String[]selectionArgs){
+            // Get writable database
+            SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+            // Track the number of rows that were deleted
+            int rowsDeleted;
+
+            final int match = sUriMatcher.match(uri);
+            switch (match) {
+                case BOOKS:
+                    rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
+                    break;
+                case BOOK_ID:
+                    // Delete a single row given by the ID in the URI
+                    selection = BookEntry._ID + "=?";
+                    selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                    rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Deletion is not supported for " + uri);
+            }
+            // If 1 or more rows were deleted, then notify all listeners that the data at the
+            // given URI has changed
+            if (rowsDeleted != 0) {
+                try {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    Log.i(LOG_TAG, "notifyChange() Success! Data for the book content URI has changed.");
+                } catch (NullPointerException npe) {
+                    Log.e(LOG_TAG, "notifyChange() Failed! " + npe);
+                }
+            }
+            // Log the rowsDeleted
+            Log.i(LOG_TAG, "rowsDeleted: " + rowsDeleted);
+
+            // Return the number of rows deleted
+            return rowsDeleted;
         }
 
-        // If the {@link BookEntry#COLUMN_BOOK_GENRE} key is present,
-        // check that the gender value is valid.
-        if (values.containsKey(BookEntry.COLUMN_PRICE_BOOK)) {
-            Integer price = values.getAsInteger(BookEntry.COLUMN_PRICE_BOOK);
-            if (price != null && price < 0) {
-                throw new IllegalArgumentException("Book requires valid price");
+        /**
+         * Returns the MIME type of data for the content URI.
+         */
+        @Override
+        public String getType (Uri uri){
+            final int match = sUriMatcher.match(uri);
+            switch (match) {
+                case BOOKS:
+                    return BookEntry.CONTENT_LIST_TYPE;
+                case BOOK_ID:
+                    return BookEntry.CONTENT_ITEM_TYPE;
+                default:
+                    throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
             }
         }
-
-        // If the {@link PetEntry#COLUMN_QUANTITY_BOOK} key is present,
-        // check that the quantity value is valid.
-        if (values.containsKey(BookEntry.COLUMN_QUANTITY_BOOK)) {
-            // Check that the quantity is greater than or equal to 0
-            Integer quantity = values.getAsInteger(BookEntry.COLUMN_QUANTITY_BOOK);
-            if (quantity != null && quantity < 0) {
-                throw new IllegalArgumentException("Books requires valid quantity");
-            }
-        }
-
-        // No need to check the breed, any value is valid (including null).
-
-        // If there are no values to update, then don't try to update the database
-        if (values.size() == 0) {
-            return 0;
-        }
-
-        // Otherwise, get writable database to update the data
-        SQLiteDatabase database = mDbHelper.getWritableDatabase();
-
-        // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(BookEntry.TABLE_NAME, values, selection, selectionArgs);
-        // If 1 or more rows were updated, then notify all listeners that the data at the
-        // given URI has changed
-        if (rowsUpdated != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-        // Return the number of rows updated
-        return rowsUpdated;
     }
 
-    /**
-     * Delete the data at the given selection and selection arguments.
-     */
-    @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Get writable database
-        SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
-        // Track the number of rows that were deleted
-        int rowsDeleted;
-
-        final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case BOOKS:
-                rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            case BOOK_ID:
-                // Delete a single row given by the ID in the URI
-                selection = BookEntry._ID + "=?";
-                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(BookEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Deletion is not supported for " + uri);
-        }
-        // If 1 or more rows were deleted, then notify all listeners that the data at the
-        // given URI has changed
-        if (rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-        // Return the number of rows deleted
-        return rowsDeleted;
-    }
-
-    /**
-     * Returns the MIME type of data for the content URI.
-     */
-    @Override
-    public String getType(Uri uri) {
-        final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case BOOKS:
-                return BookEntry.CONTENT_LIST_TYPE;
-            case BOOK_ID:
-                return BookEntry.CONTENT_ITEM_TYPE;
-            default:
-                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
-        }
-    }
-}
