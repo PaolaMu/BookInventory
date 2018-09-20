@@ -1,7 +1,7 @@
 package com.example.android.bookinventory;
 // Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
+
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,12 +9,11 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -23,11 +22,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -406,7 +402,7 @@ public class EditorActivity extends AppCompatActivity implements
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        // If this is a new pet, hide the "Delete" menu item.
+        // If this is a new book, hide the "Delete" menu item.
         if (mCurrentBookUri == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
             menuItem.setVisible(false);
@@ -432,8 +428,8 @@ public class EditorActivity extends AppCompatActivity implements
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
-                // If the pet hasn't changed, continue with navigating up to parent activity
-                // which is the {@link CatalogActivity}.
+                // If the book hasn't changed, continue with navigating up to parent activity
+                // which is the {@link BookActivity}.
                 if (!mBookHasChanged) {
                     NavUtils.navigateUpFromSameTask(EditorActivity.this);
                     return true;
@@ -462,7 +458,7 @@ public class EditorActivity extends AppCompatActivity implements
      */
     @Override
     public void onBackPressed() {
-        // If the pet hasn't changed, continue with handling back button press
+        // If the book hasn't changed, continue with handling back button press
         if (!mBookHasChanged) {
             super.onBackPressed();
             return;
@@ -516,7 +512,7 @@ public class EditorActivity extends AppCompatActivity implements
             int nameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_NAME);
             int priceColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRICE_BOOK);
             int quantityColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_QUANTITY_BOOK);
-            int supplierColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER);
+            int supplierColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_NAME);
             int phoneColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER);
 
             // Extract out the value from the Cursor for the given column index
@@ -533,8 +529,8 @@ public class EditorActivity extends AppCompatActivity implements
             mQuantityEditText.setText(String.valueOf(quantity));
             mPriceEditText.setText(String.valueOf(price));
 
-            }
         }
+    }
 
 
     @Override
@@ -607,11 +603,11 @@ public class EditorActivity extends AppCompatActivity implements
      * Perform the deletion of the book in the database.
      */
     private void deleteBook() {
-        // Only perform the delete if this is an existing pet.
+        // Only perform the delete if this is an existing book.
         if (mCurrentBookUri != null) {
             // Call the ContentResolver to delete the book at the given content URI.
-            // Pass in null for the selection and selection args because the mCurrentPetUri
-            // content URI already identifies the pet that we want.
+            // Pass in null for the selection and selection args because the mCurrentBookUri
+            // content URI already identifies the book that we want.
             int rowsDeleted = getContentResolver().delete(mCurrentBookUri, null, null);
             // Show a toast message depending on whether or not the delete was successful.
             if (rowsDeleted == 0) {

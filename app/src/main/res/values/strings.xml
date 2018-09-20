@@ -27,10 +27,10 @@
     <string name="category_supplier">Supplier</string>
 
     <!-- Text hint for name field in the editor -->
-    <string name="hint_book_name">Name</string>
+    <string name="hint_book_name">Name </string>
 
     <!-- Text hint for price field in the editor -->
-    <string name="hint_book_price">Price</string>
+    <string name="hint_book_price">Price $ </string>
 
     <!-- Text hint for quantity field in the editor -->
     <string name="hint_book_quantity">Quantity</string>
@@ -104,12 +104,16 @@
     <string name="quantity">quantity</string>
     <string name="plus_button">+</string>
     <string name="call_supplier">For Orders:</string>
-    <string name="phone">phone</string>
     <string name="phone_save_failed">Saving phone failed!</string>
     <string name="dummy_name">Pride and Prejudice</string>
-    <string name="dummy_price">$5</string>
+    <string name="dummy_price">5</string>
     <string name="dummy_quantity">18</string>
     <string name="dummy_supplier">Baker % Taylor</string>
     <string name="dummy_phone">8322757396</string>
+    <string name="name_text">Name: </string>
+    <string name="price_text">Price $ </string>
+    <string name="quantity_text">Quantity: </string>
+    <string name="phone">phone</string>
+    <string name="order_now">Order Now</string>
 
 </resources>

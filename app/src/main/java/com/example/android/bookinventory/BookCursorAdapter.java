@@ -1,15 +1,10 @@
 package com.example.android.bookinventory;
 // Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,17 +16,17 @@ import com.example.android.bookinventory.data.BookContract;
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 import com.example.android.bookinventory.data.BookDbHelper;
 
-import static android.content.ContentValues.TAG;
 import static com.example.android.bookinventory.data.BookContract.BookEntry.TABLE_NAME;
 
 
 /**
-     * {@link BookCursorAdapter} is an adapter for a list or grid view
-     * that uses a {@link Cursor} of pet data as its data source. This adapter knows
-     * how to create list items for each row of pet data in the {@link Cursor}.
-     */
-    public class BookCursorAdapter extends CursorAdapter {
+ * {@link BookCursorAdapter} is an adapter for a list or grid view
+ * that uses a {@link Cursor} of pet data as its data source. This adapter knows
+ * how to create list items for each row of pet data in the {@link Cursor}.
+ */
+public class BookCursorAdapter extends CursorAdapter {
     private Context mContext;
+
     /**
      * Constructs a new {@link BookCursorAdapter}.
      *
@@ -61,7 +56,7 @@ import static com.example.android.bookinventory.data.BookContract.BookEntry.TABL
 
     /**
      * This method binds the book data (in the current row pointed to by cursor) to the given
-     * list item layout. For example, the name for the current pet can be set on the name TextView
+     * list item layout. For example, the name for the current book can be set on the name TextView
      * in the list item layout.
      *
      * @param view    Existing view, returned earlier by newView() method
@@ -86,10 +81,15 @@ import static com.example.android.bookinventory.data.BookContract.BookEntry.TABL
         String bookPrice = cursor.getString(priceColumnIndex);
         String bookQuantity = cursor.getString(quantityColumnIndex);
 
+        //Attributes of for the current book items
+        String nameText = mContext.getResources().getString(R.string.name_text) + bookName;
+        String priceText = mContext.getResources().getString(R.string.price_text) + bookPrice;
+        String quantityText = mContext.getResources().getString(R.string.quantity_text) + bookQuantity;
+
         // Update the TextViews with the attributes for the current book
-        nameTextView.setText(bookName);
-        summaryTextView.setText(bookPrice);
-        summary2TextView.setText(bookQuantity);
+        nameTextView.setText(nameText);
+        summaryTextView.setText(priceText);
+        summary2TextView.setText(quantityText);
 
         //Button onClick to reduce quantity
         Button button = view.findViewById(R.id.sale);

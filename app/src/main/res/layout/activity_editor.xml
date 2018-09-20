@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/white"
+    android:orientation="vertical"
     android:padding="@dimen/activity_margin"
     tools:context=".EditorActivity">
 
@@ -42,11 +42,6 @@
                 android:hint="@string/hint_book_price"
                 android:inputType="textCapWords" />
 
-            <EditText
-                android:id="@+id/edit_book_quantity"
-                style="@style/EditorFieldStyle"
-                android:hint="@string/hint_book_quantity"
-                android:inputType="number" />
 
             <RelativeLayout
                 android:id="@+id/buttons_quantity"
@@ -62,19 +57,17 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="@android:color/white"
                     android:clickable="true"
-                    android:src="@drawable/minus"
                     android:contentDescription="@string/reduce_quantity"
-                     />
+                    android:src="@drawable/minus" />
 
                 <!-- Quantity field -->
                 <EditText
-                    android:id="@+id/edit_quantity"
-                    android:layout_width="@dimen/quantity_width"
+                    android:id="@+id/edit_book_quantity"
+                    style="@style/EditorFieldStyle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/minusButton"
                     android:layout_toRightOf="@+id/minusButton"
-                    android:gravity="center"
-                    android:hint="@string/quantity"
+                    android:hint="@string/hint_book_quantity"
                     android:inputType="number" />
 
                 <!-- Quantity plus button field -->
@@ -83,14 +76,13 @@
                     android:id="@+id/plusButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/edit_quantity"
-                    android:layout_toRightOf="@id/edit_quantity"
+                    android:layout_toEndOf="@id/edit_book_quantity"
+                    android:layout_toRightOf="@id/edit_book_quantity"
                     android:backgroundTint="@android:color/white"
                     android:clickable="true"
                     android:contentDescription="@string/increase_quantity"
                     android:focusable="false"
-                    android:src="@drawable/plus"
-                    />
+                    android:src="@drawable/plus" />
 
             </RelativeLayout>
 
@@ -134,28 +126,29 @@
                 android:layout_below="@+id/edit_supplier_name"
                 android:hint="@string/hint_supplier_phone"
                 android:inputType="phone" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toLeftOf="@id/phoneButton"
                 android:layout_below="@id/edit_supplier_phone"
-                android:textColor="@color/black"
-                android:text="Order Now"
-                android:layout_marginTop="26dp"/>
+                android:layout_marginTop="@dimen/margin_26"
+                android:layout_toLeftOf="@id/phoneButton"
+                android:text="@string/order_now"
+                android:textColor="@color/pink" />
 
             <ImageButton
                 android:id="@+id/phoneButton"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:foregroundGravity="center"
+                android:layout_width="@dimen/width_80"
+                android:layout_height="@dimen/height_80"
                 android:layout_below="@+id/edit_supplier_phone"
                 android:layout_centerInParent="true"
-                android:layout_marginBottom="60dp"
-                android:background="#FFFFFF"
+                android:layout_marginBottom="@dimen/margin_60"
+                android:background="@color/white"
                 android:clickable="true"
-                android:contentDescription="phone"
+                android:contentDescription="@string/phone"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
+                android:foregroundGravity="center"
                 android:src="@drawable/call" />
 
         </RelativeLayout>

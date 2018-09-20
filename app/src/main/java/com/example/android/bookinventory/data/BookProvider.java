@@ -1,5 +1,6 @@
 package com.example.android.bookinventory.data;
 // Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -7,18 +8,15 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 
-import java.security.Provider;
-
 
 /**
-     * {@link ContentProvider} for Books app.
-     */
-    public class BookProvider extends ContentProvider {
+ * {@link ContentProvider} for Books app.
+ */
+public class BookProvider extends ContentProvider {
 
     /**
      * Tag for the log messages
@@ -31,7 +29,7 @@ import java.security.Provider;
     private static final int BOOKS = 100;
 
     /**
-     * URI matcher code for the content URI for a single pet in the books table
+     * URI matcher code for the content URI for a single book in the books table
      */
     private static final int BOOK_ID = 101;
 
@@ -50,7 +48,7 @@ import java.security.Provider;
 
         // The content URI of the form "content://com.example.android.books/books" will map to the
         // integer code {@link #BOOKS}. This URI is used to provide access to MULTIPLE rows
-        // of the pets table.
+        // of the books table.
         sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS, BOOKS);
 
         // The content URI of the form "content://com.example.android.books/books/#" will map to the

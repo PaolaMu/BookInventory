@@ -1,5 +1,6 @@
 package com.example.android.bookinventory.data;
 // Based on Udacity's Pets program: https://github.com/udacity/ud845-Pets
+
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -14,6 +15,7 @@ public final class BookContract {
     // give it an empty constructor.
     private BookContract() {
     }
+
     /**
      * The "Content authority" is a name for the entire content provider, similar to the
      * relationship between a domain name and its website.  A convenient string to use for the
@@ -29,8 +31,8 @@ public final class BookContract {
     /**
      * Possible path (appended to base content URI for possible URI's)
      * For instance, content://com.example.android.books/books/ is a valid path for
-     * looking at book data. content://com.example.android.books/staff/ will fail,
-     * as the ContentProvider hasn't been given any information on what to do with "staff".
+     * looking at book data. content://com.example.android.books/books/ will fail,
+     * as the ContentProvider hasn't been given any information on what to do with "books".
      */
     public static final String PATH_BOOKS = "books";
 
@@ -97,7 +99,7 @@ public final class BookContract {
         public final static String COLUMN_SUPPLIER_PHONE_NUMBER = "phone";
 
     }
-        }
+}
 
 
 
