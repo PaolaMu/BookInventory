@@ -215,13 +215,19 @@ import java.security.Provider;
                 throw new IllegalArgumentException("Book requires a name");
             }
         }
+        if (values.containsKey(BookEntry.COLUMN_SUPPLIER_NAME)) {
+            String supplier = values.getAsString(BookEntry.COLUMN_SUPPLIER_NAME);
+            if (supplier == null) {
+                throw new IllegalArgumentException("Book requires a supplier");
+            }
+        }
 
         // If there are no values to update, then don't try to update the database
         if (values.size() == 0) {
             return 0;
         }
 
-        // Otherwise, get writeable database to update the data
+        // Otherwise, get writable database to update the data
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
         // Perform the update on the database and get the number of rows affected

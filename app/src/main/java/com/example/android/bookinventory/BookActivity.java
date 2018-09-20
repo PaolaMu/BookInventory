@@ -80,11 +80,11 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
         // Create a ContentValues object where column names are the keys,
         // and Pride and Prejudice's book attributes are the values.
         ContentValues values = new ContentValues();
-        values.put(BookEntry.COLUMN_BOOK_NAME, "Pride and Prejudice");
-        values.put(BookEntry.COLUMN_PRICE_BOOK, "$5");
-        values.put(BookEntry.COLUMN_QUANTITY_BOOK, 7);
-        values.put(BookEntry.COLUMN_SUPPLIER_NAME, "Baker % Taylor");
-        values.put(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER, "8003422067");
+        values.put(BookEntry.COLUMN_BOOK_NAME, getString(R.string.dummy_name));
+        values.put(BookEntry.COLUMN_PRICE_BOOK, getString(R.string.dummy_price));
+        values.put(BookEntry.COLUMN_QUANTITY_BOOK, getString(R.string.dummy_quantity));
+        values.put(BookEntry.COLUMN_SUPPLIER_NAME, getString(R.string.dummy_supplier));
+        values.put(BookEntry.COLUMN_SUPPLIER_PHONE_NUMBER, getString(R.string.dummy_phone));
 
         getContentResolver().insert(BookEntry.CONTENT_URI, values);
 

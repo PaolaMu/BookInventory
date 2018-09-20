@@ -105,5 +105,11 @@
     <string name="plus_button">+</string>
     <string name="call_supplier">For Orders:</string>
     <string name="phone">phone</string>
+    <string name="phone_save_failed">Saving phone failed!</string>
+    <string name="dummy_name">Pride and Prejudice</string>
+    <string name="dummy_price">$5</string>
+    <string name="dummy_quantity">18</string>
+    <string name="dummy_supplier">Baker % Taylor</string>
+    <string name="dummy_phone">8322757396</string>
 
 </resources>
